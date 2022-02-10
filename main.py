@@ -14,17 +14,18 @@ random.seed(datetime.now())
 # On recommence le processus pour [period] générations.
 
 # Règles du tournoi
-# Les 2 individus coopérent :               Les 2 individus gagnent 'cooperation' pièces chacun.
-# 1 individu coopére, 1 individu triche :   Le tricheur gagne 'steal' pièces et le coopératif gagne 'stolen' pièces.
-# Les 2 individus trichent :                Les 2 individus gagnent 'statu_quo' pièces chacun.
+# Les 2 individus coopérent :               Les 2 individus gagnent [cooperation] pièces chacun.
+# 1 individu coopére, 1 individu triche :   Le tricheur gagne [steal] pièces et le coopératif gagne [stolen] pièces.
+# Les 2 individus trichent :                Les 2 individus gagnent [statu_quo] pièces chacun.
 
 # Ajuster ces valeurs favorisera plus ou moins certains comportements.
-# Valeur par défaut : 2, 3, -1, -2
+# Valeur par défaut : 2, 3, -1, -2, 1, 4
 cooperation = 2
 steal = 3
 stolen = -1
 statu_quo = -2
-investment = 1
+investment = 1  # Non implémenté
+given = 4       # Non implémenté
 
 # Valeur par défaut : 50, 20, 10, 0.9, 0.02
 populationSize = 50
@@ -39,8 +40,9 @@ def generatePopulation():
     newPopulation = []
     for i in range(populationSize):
         individual = {
-            "number": 1000 + i,
+            "id": 1000 + i,
             "coins": 0,
+            "hiddenMoney": 0,
             "style": "Hasard",
             "strategy": []
         }
@@ -70,9 +72,24 @@ def tournament(population):
                         leftIndividual["coins"] += stolen
                         rightIndividual["coins"] += steal
                     # Les 2 individus trichent
-                    else:
+                    elif leftIndividual["strategy"][i] == 1 and rightIndividual["strategy"][i] == 1:
                         leftIndividual["coins"] += statu_quo
                         rightIndividual["coins"] += statu_quo
+                    elif leftIndividual["strategy"][i] == 0 and rightIndividual["strategy"][i] == 2:
+                        leftIndividual["coins"] += given
+                        rightIndividual["hiddenMoney"] += investment
+                    elif leftIndividual["strategy"][i] == 2 and rightIndividual["strategy"][i] == 0:
+                        leftIndividual["hiddenMoney"] += investment
+                        rightIndividual["coins"] += given
+                    elif leftIndividual["strategy"][i] == 1 and rightIndividual["strategy"][i] == 2:
+                        leftIndividual["coins"] += given
+                        rightIndividual["hiddenMoney"] += investment
+                    elif leftIndividual["strategy"][i] == 2 and rightIndividual["strategy"][i] == 1:
+                        leftIndividual["hiddenMoney"] += investment
+                        rightIndividual["coins"] += given
+                    else:
+                        leftIndividual["hiddenMoney"] += investment
+                        rightIndividual["hiddenMoney"] += investment
     population = sorted(population, key=lambda d: d['coins'], reverse=True)
     return population
 
@@ -93,6 +110,15 @@ def reproducePopulation(population):
                     individual["strategy"][i] = 1
                 else:
                     individual["strategy"][i] = 0
+                '''if individual["strategy"][i] == 0:
+                    individual["strategy"][i] = random.randint(1, 2)
+                elif individual["strategy"][i] == 1:
+                    if random.randint(0, 1) == 0:
+                        individual["strategy"][i] = 0
+                    else:
+                        individual["strategy"][i] = 2
+                else:
+                    individual["strategy"][i] = random.randint(0, 1)'''
     setStyle(population)
 
 
@@ -105,14 +131,19 @@ def showPopulation(population):
 # Modifie le comportement des individus de la population
 def setStyle(population):
     for individual in population:
-        individual["coins"] = 0
-        nbCooperation = individual["strategy"].count(0)
-        individual["cooperations"] = nbCooperation
-        individual["tricheries"] = nbTurn - nbCooperation
-        if nbCooperation > nbTurn / 2:
+        individual["coins"] = 0 + individual["hiddenMoney"]
+        nbCooperations = individual["strategy"].count(0)
+        nbTricheries = individual["strategy"].count(1)
+        nbInvestment = individual["strategy"].count(2)
+        individual["cooperations"] = nbCooperations
+        individual["tricheries"] = nbTricheries
+        individual["investisment"] = nbInvestment
+        if nbCooperations > nbTricheries and nbCooperations > nbInvestment:
             individual["style"] = "Coopératif"
-        elif nbCooperation < nbTurn / 2:
+        elif nbTricheries > nbCooperations and nbTricheries > nbInvestment:
             individual["style"] = "Arnaqueur!"
+        elif nbInvestment > nbCooperations and nbInvestment > nbTricheries:
+            individual["style"] = "Long-terme"
         else:
             individual["style"] = "Equilibré!"
 
@@ -120,15 +151,15 @@ def setStyle(population):
 # Affichage des données comportementales de la population
 def showRatio(population):
     nbCooperatif = 0
-    nbEquilibre = 0
+    nbInvestisseur = 0
     for individual in population:
         if individual["style"] == "Coopératif":
             nbCooperatif += 1
-        elif individual["style"] == "Equilibré!":
-            nbEquilibre += 1
+        elif individual["style"] == "Investisseur":
+            nbInvestisseur += 1
     print("\nNombre d'individus principalement coopératifs : " + nbCooperatif.__str__()
-          + "\nNombre d'individus totalement équilibrés      : " + nbEquilibre.__str__()
-          + "\nNombre d'individu principalement arnaqueurs   : " + (populationSize - nbEquilibre - nbCooperatif).__str__() + "\n")
+          + "\nNombre d'individus principalement investisseurs      : " + nbInvestisseur.__str__()
+          + "\nNombre d'individu principalement arnaqueurs   : " + (populationSize - nbInvestisseur - nbCooperatif).__str__() + "\n")
 
 
 population = generatePopulation()
