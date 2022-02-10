@@ -175,7 +175,7 @@ def showRatio(population):
             nbInvestisseur += 1
     print("\nNombre d'individus principalement coopératifs : " + nbCooperatif.__str__()
           + "\nNombre d'individus principalement long-terme  : " + nbInvestisseur.__str__()
-          + "\nNombre d'individu principalement arnaqueurs   : " + (populationSize - nbInvestisseur - nbCooperatif).__str__() + "\n")
+          + "\nNombre d'individus principalement arnaqueurs  : " + (populationSize - nbInvestisseur - nbCooperatif).__str__() + "\n")
 
 
 population = generatePopulation()
