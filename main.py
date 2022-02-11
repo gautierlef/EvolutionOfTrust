@@ -34,7 +34,7 @@ random.seed(datetime.now())
 cooperation = 2         # Gain lorsque les 2 individus coopèrent
 steal = 3               # Gain lorsqu'un individu réussi à tricher
 stolen = -1             # Gain lorsqu'un individu subit une tricherie
-statu_quo = -2           # Gain lorsque 2 individus trichent
+statu_quo = 2           # Gain lorsque 2 individus trichent
 investment = -1         # Gain lorsqu'un individu investie
 hideMoney = 1           # Nombre de pièces cachées dans les fonds cachés.
 
@@ -112,7 +112,7 @@ def tournament(population):
                         leftIndividual["coins"] += investment
                         rightIndividual["hiddenMoney"] += hideMoney
                         leftIndividual["coins"] += investment
-
+    # On ordonne la population par coins pour connaitre les meilleurs à la fin du tournoi
     population = sorted(population, key=lambda d: d['coins'], reverse=True)
     return population
 
@@ -121,21 +121,27 @@ def tournament(population):
 def reproducePopulation(population):
     for individual in population:
         indexPartner = -1
+        # Choix du partenaire
         while indexPartner == -1 or individual == population[indexPartner]:
             indexPartner = random.randint(0, populationSize - 1)
         partner = population[indexPartner]
         for i in range(nbTurn):
+            # Crossover
             if individual["coins"] < partner["coins"]:
                 if random.uniform(0, 1) < crossoverRate:
                     individual["strategy"][i] = partner["strategy"][i]
+            # Mutation
             if random.uniform(0, 1) < mutationRate:
+                # Si l'élément de la stratégie est coopération, elle devient tricheur ou investisseur.
                 if individual["strategy"][i] == 0:
                     individual["strategy"][i] = random.randint(1, 2)
+                # Si l'élément de la stratégie est tricher, elle devient coopération ou investisseur.
                 elif individual["strategy"][i] == 1:
                     if random.randint(0, 1) == 0:
                         individual["strategy"][i] = 0
                     else:
                         individual["strategy"][i] = 2
+                # Si l'élément de la stratégie est investisseur, elle devient coopération ou tricheur.
                 else:
                     individual["strategy"][i] = random.randint(0, 1)
     setStyle(population)
