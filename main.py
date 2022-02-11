@@ -27,20 +27,23 @@ random.seed(datetime.now())
 
 
 # Ajuster ces valeurs favorisera plus ou moins certains comportements.
-# Valeur par défaut : 2, 3, -1, -2, -1, 1
-cooperation = 2
-steal = 3
-stolen = -1
-statu_quo = -2
-investment = -1
-hideMoney = 1
+# Valeurs par défaut : 2, 3, -1, -2, -1, 1
+# Milieu de tricheurs : Passer statu_quo à 0
+# Mileu coopératif :    Passer cooperation à 4
+# Milieu investisseur : Passer hideMoney à 3
+cooperation = 2         # Gain lorsque les 2 individus coopèrent
+steal = 3               # Gain lorsqu'un individu réussi à tricher
+stolen = -1             # Gain lorsqu'un individu subit une tricherie
+statu_quo = -2           # Gain lorsque 2 individus trichent
+investment = -1         # Gain lorsqu'un individu investie
+hideMoney = 1           # Nombre de pièces cachées dans les fonds cachés.
 
-# Valeur par défaut : 50, 10, 10, 0.9, 0.02
-populationSize = 50
-period = 10
-nbTurn = 10
-crossoverRate = 0.9
-mutationRate = 0.02
+# Valeurs par défaut : 50, 10, 10, 0.9, 0.02
+populationSize = 50     # Taille de la population
+period = 10             # Nombre de tournois
+nbTurn = 10             # Nombre de tours par tournoi
+crossoverRate = 0.9     # Taux de crossover
+mutationRate = 0.02     # Taux de mutation
 
 
 # Génération de la population
